@@ -14,7 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cycle_entries: {
+        Row: {
+          created_at: string
+          entry_date: string
+          id: string
+          notes: string | null
+          phase: string
+          symptoms: string[]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entry_date?: string
+          id?: string
+          notes?: string | null
+          phase: string
+          symptoms?: string[]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entry_date?: string
+          id?: string
+          notes?: string | null
+          phase?: string
+          symptoms?: string[]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meal_logs: {
+        Row: {
+          calories: number
+          carbs: number
+          fats: number
+          id: string
+          items: Json
+          logged_at: string
+          mode: string
+          protein: number
+          user_id: string
+        }
+        Insert: {
+          calories?: number
+          carbs?: number
+          fats?: number
+          id?: string
+          items?: Json
+          logged_at?: string
+          mode?: string
+          protein?: number
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          fats?: number
+          id?: string
+          items?: Json
+          logged_at?: string
+          mode?: string
+          protein?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          activity_level: string | null
+          created_at: string
+          default_mode: string
+          dietary_pattern: string | null
+          display_name: string | null
+          email: string | null
+          focus_areas: string[]
+          has_pcos: boolean
+          id: string
+          onboarding_complete: boolean
+          primary_goal: string | null
+          updated_at: string
+        }
+        Insert: {
+          activity_level?: string | null
+          created_at?: string
+          default_mode?: string
+          dietary_pattern?: string | null
+          display_name?: string | null
+          email?: string | null
+          focus_areas?: string[]
+          has_pcos?: boolean
+          id: string
+          onboarding_complete?: boolean
+          primary_goal?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activity_level?: string | null
+          created_at?: string
+          default_mode?: string
+          dietary_pattern?: string | null
+          display_name?: string | null
+          email?: string | null
+          focus_areas?: string[]
+          has_pcos?: boolean
+          id?: string
+          onboarding_complete?: boolean
+          primary_goal?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
