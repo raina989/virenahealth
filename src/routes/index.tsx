@@ -55,11 +55,41 @@ function Landing() {
 
   useEffect(() => {
     let cancelled = false;
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!cancelled && data.session) void navigate({ to: "/dashboard" });
+    const go = () => {
+      if (!cancelled) {
+        cancelled = true;
+        void navigate({ to: "/dashboard" });
+      }
+    };
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) go();
     });
+
+    void supabase.auth.getSession().then(({ data }) => {
+      if (data.session) go();
+    });
+
+    // The preview auth storage can hydrate slightly after mount / OAuth return.
+    let tries = 0;
+    const timer = window.setInterval(() => {
+      tries += 1;
+      if (cancelled || tries > 20) {
+        window.clearInterval(timer);
+        return;
+      }
+      void supabase.auth.getSession().then(({ data }) => {
+        if (data.session) {
+          window.clearInterval(timer);
+          go();
+        }
+      });
+    }, 500);
+
     return () => {
       cancelled = true;
+      window.clearInterval(timer);
+      sub.subscription.unsubscribe();
     };
   }, [navigate]);
 
@@ -74,7 +104,18 @@ function Landing() {
       return;
     }
     if (result.redirected) return;
-    void navigate({ to: "/dashboard" });
+
+    // Wait for the session to be readable before routing into the app.
+    for (let i = 0; i < 20; i += 1) {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        void navigate({ to: "/dashboard" });
+        return;
+      }
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    setLoading(false);
+    toast.error("Sign-in didn't complete. Please try again.");
   }
 
   return (
