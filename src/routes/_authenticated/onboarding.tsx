@@ -100,8 +100,8 @@ function Onboarding() {
         </div>
 
         <div className="surface mt-6 p-8">
-          <h1 className="text-3xl">{steps[step].title}</h1>
-          <p className="mt-2 text-muted-foreground">{steps[step].subtitle}</p>
+          <h1 className="text-3xl">{steps[step]?.title}</h1>
+          <p className="mt-2 text-muted-foreground">{steps[step]?.subtitle}</p>
 
           <div className="mt-7 space-y-3">
             {step === 0 &&
