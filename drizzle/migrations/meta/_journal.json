@@ -8,6 +8,13 @@
       "when": 1789644417252,
       "tag": "0000_virena_core_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789714453563,
+      "tag": "0001_virena_daily_logs_periods_sessions",
+      "breakpoints": true
     }
   ]
 }
