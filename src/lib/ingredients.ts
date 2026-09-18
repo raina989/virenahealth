@@ -18,7 +18,7 @@ type Row = [string, number, number, number, number, number];
 function slug(name: string): string {
   return name
     .toLowerCase()
-    .replace(/\([^)]*\)/g, "")
+    .replace(/%/g, "pct")
     .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
