@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      active_sessions: {
+        Row: {
+          session_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          session_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          session_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       cycle_entries: {
         Row: {
           created_at: string
@@ -44,6 +62,51 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_logs: {
+        Row: {
+          created_at: string
+          energy: number | null
+          id: string
+          log_date: string
+          mood: string | null
+          notes: string | null
+          sleep_end: string | null
+          sleep_hours: number | null
+          sleep_start: string | null
+          symptoms: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          energy?: number | null
+          id?: string
+          log_date?: string
+          mood?: string | null
+          notes?: string | null
+          sleep_end?: string | null
+          sleep_hours?: number | null
+          sleep_start?: string | null
+          symptoms?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          energy?: number | null
+          id?: string
+          log_date?: string
+          mood?: string | null
+          notes?: string | null
+          sleep_end?: string | null
+          sleep_hours?: number | null
+          sleep_start?: string | null
+          symptoms?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       meal_logs: {
         Row: {
           calories: number
@@ -52,6 +115,8 @@ export type Database = {
           id: string
           items: Json
           logged_at: string
+          logged_on: string
+          meal_slot: string
           mode: string
           protein: number
           user_id: string
@@ -63,6 +128,8 @@ export type Database = {
           id?: string
           items?: Json
           logged_at?: string
+          logged_on?: string
+          meal_slot?: string
           mode?: string
           protein?: number
           user_id: string
@@ -74,8 +141,34 @@ export type Database = {
           id?: string
           items?: Json
           logged_at?: string
+          logged_on?: string
+          meal_slot?: string
           mode?: string
           protein?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      period_days: {
+        Row: {
+          created_at: string
+          day: string
+          flow: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: string
+          flow?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          flow?: string
+          id?: string
           user_id?: string
         }
         Relationships: []
@@ -93,6 +186,7 @@ export type Database = {
           id: string
           onboarding_complete: boolean
           primary_goal: string | null
+          tracks_cycle: boolean
           updated_at: string
         }
         Insert: {
@@ -107,6 +201,7 @@ export type Database = {
           id: string
           onboarding_complete?: boolean
           primary_goal?: string | null
+          tracks_cycle?: boolean
           updated_at?: string
         }
         Update: {
@@ -121,6 +216,7 @@ export type Database = {
           id?: string
           onboarding_complete?: boolean
           primary_goal?: string | null
+          tracks_cycle?: boolean
           updated_at?: string
         }
         Relationships: []
