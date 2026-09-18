@@ -1,46 +1,8 @@
+import { INGREDIENTS, CATEGORY_ORDER, type Ingredient } from "./ingredients";
+
 export type Unit = "g" | "cup";
-
-export type Ingredient = {
-  id: string;
-  name: string;
-  category: string;
-  /** grams in one standard cup measure */
-  cupGrams: number;
-  /** per 100 g */
-  carbs: number;
-  protein: number;
-  fats: number;
-  gi: number;
-  note?: string;
-};
-
-export const INGREDIENTS: Ingredient[] = [
-  { id: "avocado", name: "Avocado", category: "Fats", cupGrams: 150, carbs: 8.5, protein: 2, fats: 14.7, gi: 15 },
-  { id: "chicken-breast", name: "Chicken Breast", category: "Protein", cupGrams: 140, carbs: 0, protein: 31, fats: 3.6, gi: 0 },
-  { id: "white-rice", name: "White Rice (cooked)", category: "Carbs", cupGrams: 195, carbs: 28, protein: 2.7, fats: 0.3, gi: 73 },
-  { id: "brown-rice", name: "Brown Rice (cooked)", category: "Carbs", cupGrams: 195, carbs: 23, protein: 2.6, fats: 0.9, gi: 50 },
-  { id: "broccoli", name: "Broccoli", category: "Vegetables", cupGrams: 91, carbs: 7, protein: 2.8, fats: 0.4, gi: 15 },
-  { id: "oats", name: "Oats (uncooked)", category: "Carbs", cupGrams: 80, carbs: 66, protein: 17, fats: 7, gi: 55 },
-  { id: "eggs", name: "Eggs", category: "Protein", cupGrams: 243, carbs: 1.1, protein: 13, fats: 11, gi: 0, note: "1 large egg ≈ 50 g" },
-  { id: "almonds", name: "Almonds", category: "Fats", cupGrams: 143, carbs: 22, protein: 21, fats: 50, gi: 15 },
-  { id: "white-flour", name: "White Flour", category: "Carbs", cupGrams: 125, carbs: 76, protein: 10, fats: 1, gi: 85 },
-  { id: "white-sugar", name: "White Sugar", category: "Sweeteners", cupGrams: 200, carbs: 100, protein: 0, fats: 0, gi: 65 },
-  { id: "white-bread", name: "White Bread", category: "Carbs", cupGrams: 45, carbs: 49, protein: 9, fats: 3.2, gi: 75 },
-  { id: "potato", name: "Potato (boiled)", category: "Carbs", cupGrams: 156, carbs: 20, protein: 2, fats: 0.1, gi: 78 },
-  { id: "sweet-potato", name: "Sweet Potato", category: "Carbs", cupGrams: 133, carbs: 20, protein: 1.6, fats: 0.1, gi: 63 },
-  { id: "quinoa", name: "Quinoa (cooked)", category: "Carbs", cupGrams: 185, carbs: 21, protein: 4.4, fats: 1.9, gi: 53 },
-  { id: "lentils", name: "Lentils (cooked)", category: "Protein", cupGrams: 198, carbs: 20, protein: 9, fats: 0.4, gi: 32 },
-  { id: "chickpeas", name: "Chickpeas (cooked)", category: "Protein", cupGrams: 164, carbs: 27, protein: 9, fats: 2.6, gi: 28 },
-  { id: "greek-yogurt", name: "Greek Yogurt", category: "Protein", cupGrams: 245, carbs: 3.6, protein: 10, fats: 0.4, gi: 11 },
-  { id: "salmon", name: "Salmon", category: "Protein", cupGrams: 154, carbs: 0, protein: 20, fats: 13, gi: 0 },
-  { id: "tofu", name: "Tofu", category: "Protein", cupGrams: 252, carbs: 1.9, protein: 8, fats: 4.8, gi: 15 },
-  { id: "spinach", name: "Spinach", category: "Vegetables", cupGrams: 30, carbs: 3.6, protein: 2.9, fats: 0.4, gi: 15 },
-  { id: "banana", name: "Banana", category: "Fruit", cupGrams: 150, carbs: 23, protein: 1.1, fats: 0.3, gi: 51 },
-  { id: "berries", name: "Mixed Berries", category: "Fruit", cupGrams: 148, carbs: 14, protein: 0.7, fats: 0.3, gi: 25 },
-  { id: "olive-oil", name: "Olive Oil", category: "Fats", cupGrams: 216, carbs: 0, protein: 0, fats: 100, gi: 0 },
-  { id: "almond-flour", name: "Almond Flour", category: "Carbs", cupGrams: 96, carbs: 21, protein: 21, fats: 50, gi: 1 },
-  { id: "oat-flour", name: "Oat Flour", category: "Carbs", cupGrams: 120, carbs: 66, protein: 15, fats: 7, gi: 44 },
-];
+export type { Ingredient };
+export { INGREDIENTS, CATEGORY_ORDER };
 
 export const HIGH_GI_THRESHOLD = 60;
 
@@ -53,21 +15,69 @@ export const SWAPS: Record<string, { title: string; message: string }> = {
     title: "White Sugar",
     message: "Swap for Stevia Drops or Monkfruit Sweetener to keep it sweet without the glucose spike!",
   },
-  "white-rice": {
+  "brown-sugar": {
+    title: "Brown Sugar",
+    message: "Coconut sugar or date syrup land softer — or use monk fruit for a zero-spike swap.",
+  },
+  "white-rice-cooked": {
     title: "White Rice",
     message: "Try Quinoa or Brown Rice — same comfort, a much gentler glucose curve.",
+  },
+  "jasmine-rice-cooked": {
+    title: "Jasmine Rice",
+    message: "Basmati or brown rice gives the same fluffiness with a far lower glucose response.",
   },
   "white-bread": {
     title: "White Bread",
     message: "Reach for sourdough or sprouted-grain bread, or pair it with eggs and avocado to blunt the spike.",
   },
-  potato: {
+  bagel: {
+    title: "Bagel",
+    message: "Half a sourdough slice with cottage cheese and egg keeps the chew and triples the protein.",
+  },
+  "potato-boiled": {
     title: "Potato",
     message: "Sweet potato or roasted chickpeas give you the same warmth with far steadier energy.",
+  },
+  "french-fries": {
+    title: "French Fries",
+    message: "Air-fried sweet potato wedges or crispy chickpeas hit the same craving with real fibre.",
   },
   banana: {
     title: "Ripe Banana",
     message: "Mixed berries deliver the sweetness with about half the sugar load.",
+  },
+  "orange-juice": {
+    title: "Orange Juice",
+    message: "Eat the whole orange instead — the fibre slows the sugar right down.",
+  },
+  cola: {
+    title: "Cola",
+    message: "Try sparkling water with lime, or kombucha, for fizz without the glucose hit.",
+  },
+  "potato-chips": {
+    title: "Potato Chips",
+    message: "Air-fried chickpeas or roasted edamame give the crunch plus protein and fibre.",
+  },
+  "ice-cream": {
+    title: "Ice Cream",
+    message: "Blend frozen berries with Greek yogurt for a protein-rich, spike-free scoop.",
+  },
+  "rice-cakes": {
+    title: "Rice Cakes",
+    message: "Top them with nut butter or cottage cheese, or switch to oat crackers, to slow the spike.",
+  },
+  granola: {
+    title: "Granola",
+    message: "Swap for nuts, seeds and Greek yogurt — same crunch, far less sugar.",
+  },
+  honey: {
+    title: "Honey",
+    message: "Lovely in small amounts — for a zero-spike option, use monk fruit or a couple of dates blended in.",
+  },
+  donut: {
+    title: "Donut",
+    message: "A Greek yogurt + almond flour baked donut keeps the treat and adds 15 g of protein.",
   },
 };
 
@@ -78,10 +88,26 @@ export type PlateItem = {
   unit: Unit;
 };
 
+const BY_ID = new Map(INGREDIENTS.map((i) => [i.id, i]));
+
+const UNKNOWN: Ingredient = {
+  id: "unknown",
+  name: "Unknown ingredient",
+  category: "Other",
+  cupGrams: 100,
+  carbs: 0,
+  protein: 0,
+  fats: 0,
+  gi: 0,
+};
+
+/** Never throws: older logs may reference ingredients that have since been renamed. */
 export function getIngredient(id: string): Ingredient {
-  const found = INGREDIENTS.find((i) => i.id === id);
-  if (!found) throw new Error(`Unknown ingredient: ${id}`);
-  return found;
+  return BY_ID.get(id) ?? { ...UNKNOWN, id, name: prettify(id) };
+}
+
+function prettify(id: string): string {
+  return id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 /** Converts a portion to grams, handling cup -> gram conversion per ingredient. */
@@ -212,4 +238,11 @@ export const SYMPTOMS = [
   "Poor sleep",
   "Headache",
   "Cramping",
+  "Brain fog",
+  "Joint aches",
+  "Low mood",
+  "Nausea",
 ] as const;
+
+export const MEAL_SLOTS = ["Breakfast", "Lunch", "Dinner", "Snack"] as const;
+export type MealSlot = (typeof MEAL_SLOTS)[number];
