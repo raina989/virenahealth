@@ -39,8 +39,10 @@ const DIET = ["No restrictions", "Vegetarian", "Vegan", "Pescatarian", "Halal", 
 
 function Onboarding() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(0);
   const [goal, setGoal] = useState<string | null>(null);
+  const [tracksCycle, setTracksCycle] = useState<boolean | null>(null);
   const [pcos, setPcos] = useState<"yes" | "suspected" | "no" | null>(null);
   const [focus, setFocus] = useState<string[]>([]);
   const [activity, setActivity] = useState<string | null>(null);
@@ -48,27 +50,53 @@ function Onboarding() {
   const [saving, setSaving] = useState(false);
 
   const steps = [
-    { title: "What brings you to Virena?", subtitle: "This shapes every recommendation you'll see." },
-    { title: "Have you been diagnosed with PCOS?", subtitle: "We'll switch on PCOS mode by default if so." },
-    { title: "What would you most like to improve?", subtitle: "Pick as many as feel true." },
-    { title: "A little about your day", subtitle: "Last one, we promise." },
+    { key: "goal", title: "What brings you to Virena?", subtitle: "This shapes every recommendation you'll see." },
+    {
+      key: "cycle",
+      title: "Do you track a menstrual cycle?",
+      subtitle: "If not, Virena hides cycle and PCOS tools and focuses on metabolic performance.",
+    },
+    ...(tracksCycle
+      ? [
+          {
+            key: "pcos",
+            title: "Have you been diagnosed with PCOS?",
+            subtitle: "We'll switch on PCOS mode by default if so.",
+          },
+        ]
+      : []),
+    { key: "focus", title: "What would you most like to improve?", subtitle: "Pick as many as feel true." },
+    { key: "day", title: "A little about your day", subtitle: "Last one, we promise." },
   ];
 
-  const canContinue = [goal !== null, pcos !== null, true, activity !== null && diet !== null][step];
+  const current = steps[step]?.key;
+  const canContinue =
+    current === "goal"
+      ? goal !== null
+      : current === "cycle"
+        ? tracksCycle !== null
+        : current === "pcos"
+          ? pcos !== null
+          : current === "day"
+            ? activity !== null && diet !== null
+            : true;
 
   async function finish() {
+    if (saving) return;
     setSaving(true);
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) {
       setSaving(false);
       return;
     }
+    const usesPcos = tracksCycle === true && (pcos === "yes" || pcos === "suspected" || goal === "pcos");
     const { error } = await supabase
       .from("profiles")
       .update({
         primary_goal: goal,
-        has_pcos: pcos === "yes",
-        default_mode: pcos === "no" && goal !== "pcos" ? "general" : "pcos",
+        tracks_cycle: tracksCycle === true,
+        has_pcos: tracksCycle === true && pcos === "yes",
+        default_mode: usesPcos ? "pcos" : "general",
         focus_areas: focus,
         activity_level: activity,
         dietary_pattern: diet,
@@ -77,12 +105,15 @@ function Onboarding() {
       })
       .eq("id", auth.user.id);
 
-    setSaving(false);
     if (error) {
+      setSaving(false);
       toast.error("We couldn't save your answers. Please try again.");
       return;
     }
-    void navigate({ to: "/dashboard" });
+    await queryClient.invalidateQueries({ queryKey: ["profile"] });
+    await queryClient.refetchQueries({ queryKey: ["profile"] });
+    setSaving(false);
+    void navigate({ to: "/dashboard", replace: true });
   }
 
   return (
