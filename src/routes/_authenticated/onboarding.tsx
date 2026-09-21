@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -135,7 +136,7 @@ function Onboarding() {
           <p className="mt-2 text-muted-foreground">{steps[step]?.subtitle}</p>
 
           <div className="mt-7 space-y-3">
-            {step === 0 &&
+            {current === "goal" &&
               GOALS.map((g) => (
                 <OptionCard
                   key={g.id}
@@ -146,7 +147,26 @@ function Onboarding() {
                 />
               ))}
 
-            {step === 1 &&
+            {current === "cycle" &&
+              (
+                [
+                  { id: true, label: "Yes, I track my cycle", body: "Cycle phases, period logging and PCOS tools stay on." },
+                  { id: false, label: "No", body: "Virena hides cycle tools and focuses on metabolic performance." },
+                ] as const
+              ).map((o) => (
+                <OptionCard
+                  key={String(o.id)}
+                  selected={tracksCycle === o.id}
+                  onClick={() => {
+                    setTracksCycle(o.id);
+                    if (!o.id) setPcos(null);
+                  }}
+                  title={o.label}
+                  body={o.body}
+                />
+              ))}
+
+            {current === "pcos" &&
               (
                 [
                   { id: "yes", label: "Yes, diagnosed", body: "PCOS mode on by default, with strict high-GI flags." },
@@ -163,7 +183,7 @@ function Onboarding() {
                 />
               ))}
 
-            {step === 2 && (
+            {current === "focus" && (
               <div className="flex flex-wrap gap-2">
                 {FOCUS.map((f) => (
                   <button
@@ -185,7 +205,7 @@ function Onboarding() {
               </div>
             )}
 
-            {step === 3 && (
+            {current === "day" && (
               <div className="space-y-6">
                 <ChipRow label="How active are you, typically?" options={ACTIVITY} value={activity} onChange={setActivity} />
                 <ChipRow label="How do you eat?" options={DIET} value={diet} onChange={setDiet} />
