@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Activity, Droplets, LineChart, Sparkles } from "lucide-react";
@@ -175,6 +175,14 @@ function Landing() {
         <p className="mt-10 text-center text-xs text-muted-foreground">
           Virena offers general nutrition guidance and is not a substitute for medical advice.
         </p>
+        <nav className="mt-4 flex justify-center gap-6 text-xs text-muted-foreground" aria-label="Legal">
+          <Link to="/privacy" className="underline-offset-4 hover:underline">
+            Privacy policy
+          </Link>
+          <Link to="/terms" className="underline-offset-4 hover:underline">
+            Terms
+          </Link>
+        </nav>
       </section>
     </main>
   );
