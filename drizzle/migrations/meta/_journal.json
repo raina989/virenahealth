@@ -22,6 +22,13 @@
       "when": 1789974752611,
       "tag": "0002_swap_feedback_and_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789974765153,
+      "tag": "0003_admins_read_profiles",
+      "breakpoints": true
     }
   ]
 }
