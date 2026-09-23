@@ -8,6 +8,25 @@ export type PhaseInfo = {
   cycleDay: number;
   headline: string;
   foods: string[];
+  /** true when the person is well past their expected period */
+  extended: boolean;
+  /** days past the expected period start (0 when not overdue) */
+  overdueDays: number;
+  /** e.g. "based on 4 logged cycles" */
+  confidence: string;
+  /** learned cycle length used for this estimate */
+  cycleLength: number;
+};
+
+export type LearnedCycle = {
+  /** learned (or default) cycle length in days */
+  length: number;
+  /** learned typical bleed length in days */
+  periodLength: number;
+  /** number of completed cycles used */
+  samples: number;
+  learned: boolean;
+  confidence: string;
 };
 
 const DEFAULT_CYCLE = 28;
