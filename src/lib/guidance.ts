@@ -8,6 +8,25 @@ export type PhaseInfo = {
   cycleDay: number;
   headline: string;
   foods: string[];
+  /** true when the person is well past their expected period */
+  extended: boolean;
+  /** days past the expected period start (0 when not overdue) */
+  overdueDays: number;
+  /** e.g. "based on 4 logged cycles" */
+  confidence: string;
+  /** learned cycle length used for this estimate */
+  cycleLength: number;
+};
+
+export type LearnedCycle = {
+  /** learned (or default) cycle length in days */
+  length: number;
+  /** learned typical bleed length in days */
+  periodLength: number;
+  /** number of completed cycles used */
+  samples: number;
+  learned: boolean;
+  confidence: string;
 };
 
 const DEFAULT_CYCLE = 28;
@@ -40,17 +59,137 @@ export function periodStarts(days: string[]): string[] {
   return starts;
 }
 
-export function averageCycleLength(days: string[]): number {
+/** Length of each logged bleed run, in days. */
+function periodRuns(days: string[]): number[] {
+  const sorted = [...new Set(days)].sort().map(toDate);
+  const runs: number[] = [];
+  let count = 0;
+  let prev: Date | null = null;
+  for (const d of sorted) {
+    if (prev && daysBetween(prev, d) <= 2) count++;
+    else {
+      if (count) runs.push(count);
+      count = 1;
+    }
+    prev = d;
+  }
+  if (count) runs.push(count);
+  return runs;
+}
+
+/**
+ * Learns a person's own rhythm from their logged period starts:
+ * recent cycles weigh more, clear outliers are dropped.
+ */
+export function learnedCycle(days: string[]): LearnedCycle {
+  const runs = periodRuns(days);
+  const periodLength = runs.length
+    ? Math.max(2, Math.round(runs.reduce((a, b) => a + b, 0) / runs.length))
+    : 5;
+
   const starts = periodStarts(days).map(toDate);
-  if (starts.length < 2) return DEFAULT_CYCLE;
   const gaps: number[] = [];
   for (let i = 1; i < starts.length; i++) {
     const gap = daysBetween(starts[i - 1]!, starts[i]!);
-    if (gap >= 18 && gap <= 60) gaps.push(gap);
+    if (gap >= 18 && gap <= 90) gaps.push(gap);
   }
-  if (gaps.length === 0) return DEFAULT_CYCLE;
-  return Math.round(gaps.reduce((a, b) => a + b, 0) / gaps.length);
+
+  if (gaps.length === 0) {
+    return {
+      length: DEFAULT_CYCLE,
+      periodLength,
+      samples: 0,
+      learned: false,
+      confidence: "estimate — log a few more cycles",
+    };
+  }
+
+  // Drop outliers more than 10 days from the median once we have enough data.
+  const sortedGaps = [...gaps].sort((a, b) => a - b);
+  const median = sortedGaps[Math.floor(sortedGaps.length / 2)]!;
+  const kept = gaps.length >= 3 ? gaps.filter((g) => Math.abs(g - median) <= 10) : gaps;
+  const usable = kept.length ? kept : gaps;
+
+  // Recency weighting: the most recent cycle counts most.
+  let weighted = 0;
+  let weights = 0;
+  usable.forEach((gap, i) => {
+    const w = i + 1;
+    weighted += gap * w;
+    weights += w;
+  });
+
+  const length = Math.round(weighted / weights);
+  const learned = usable.length >= 2;
+  return {
+    length,
+    periodLength,
+    samples: usable.length,
+    learned,
+    confidence: learned
+      ? `based on ${usable.length} logged cycles`
+      : "estimate — log a few more cycles",
+  };
 }
+
+export function averageCycleLength(days: string[]): number {
+  return learnedCycle(days).length;
+}
+
+export const PHASE_ACTIONS: Record<PhaseId, { eat: string[]; move: string[] }> = {
+  menstrual: {
+    eat: [
+      "Iron with vitamin C — lentils or red meat plus lemon or peppers",
+      "Warm, cooked meals instead of raw salads",
+      "Magnesium at night: pumpkin seeds or dark chocolate",
+      "Extra water and a pinch of salt to replace what you lose",
+    ],
+    move: [
+      "Gentle walking, 20–30 minutes daily",
+      "Restorative yoga or stretching instead of hard sessions",
+      "Rest without guilt if energy is low",
+    ],
+  },
+  follicular: {
+    eat: [
+      "Protein at breakfast, every day this week",
+      "Fermented foods (kefir, kimchi, sauerkraut) daily",
+      "Flax and pumpkin seeds, 1 tbsp a day",
+      "Leafy greens with lunch",
+    ],
+    move: [
+      "Start building: 2 strength sessions this week",
+      "Try something new — coordination is at its best",
+      "Add one longer cardio session",
+    ],
+  },
+  ovulatory: {
+    eat: [
+      "Cruciferous veg daily — broccoli, cauliflower, rocket",
+      "Keep protein at every meal",
+      "Antioxidant fruit: berries, citrus, pomegranate",
+      "Hydrate well; keep alcohol low",
+    ],
+    move: [
+      "Strength train while energy peaks — go heavier",
+      "One high-intensity session is well tolerated now",
+      "Warm up properly; joints are looser around ovulation",
+    ],
+  },
+  luteal: {
+    eat: [
+      "Protein first at every meal (30 g+) to blunt cravings",
+      "Complex carbs — sweet potato, quinoa, oats",
+      "Magnesium and B6: pumpkin seeds, banana with nut butter",
+      "Cut caffeine after midday to protect sleep",
+    ],
+    move: [
+      "Steady-state cardio and moderate strength over intensity",
+      "Walk 10 minutes after meals",
+      "Prioritise sleep over an extra workout",
+    ],
+  },
+};
 
 const PHASE_CONTENT: Record<PhaseId, { label: string; headline: string; foods: string[] }> = {
   menstrual: {
@@ -98,18 +237,40 @@ export function phaseForDate(periodDays: string[], date: Date): PhaseInfo | null
   const past = starts.map(toDate).filter((s) => s.getTime() <= target.getTime());
   if (past.length === 0) return null;
   const last = past[past.length - 1]!;
-  const length = averageCycleLength(periodDays);
-  let cycleDay = daysBetween(last, target) + 1;
-  if (cycleDay > length + 14) return null; // too stale to trust
-  if (cycleDay > length) cycleDay = ((cycleDay - 1) % length) + 1;
+  const cycle = learnedCycle(periodDays);
+  const length = cycle.length;
+  const cycleDay = daysBetween(last, target) + 1;
+
+  // Well past the expected period: stay in an extended luteal phase rather than guessing.
+  if (cycleDay > length + 2) {
+    return {
+      id: "luteal",
+      cycleDay,
+      extended: true,
+      overdueDays: cycleDay - length,
+      confidence: cycle.confidence,
+      cycleLength: length,
+      label: "Extended luteal",
+      headline: "A longer stretch than usual — steady blood sugar is the kindest thing you can do right now.",
+      foods: PHASE_CONTENT.luteal.foods,
+    };
+  }
 
   const ovulation = Math.max(12, length - 14);
   let id: PhaseId = "luteal";
-  if (cycleDay <= 5) id = "menstrual";
+  if (cycleDay <= Math.max(3, cycle.periodLength)) id = "menstrual";
   else if (cycleDay < ovulation) id = "follicular";
   else if (cycleDay <= ovulation + 2) id = "ovulatory";
 
-  return { id, cycleDay, ...PHASE_CONTENT[id] };
+  return {
+    id,
+    cycleDay,
+    extended: false,
+    overdueDays: 0,
+    confidence: cycle.confidence,
+    cycleLength: length,
+    ...PHASE_CONTENT[id],
+  };
 }
 
 export const MOODS = ["Great", "Okay", "Low", "Tired", "Anxious", "Irritable", "Foggy"] as const;
