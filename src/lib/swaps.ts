@@ -47,7 +47,7 @@ export const TIERED_SWAPS: Record<string, TieredSwap> = {
   "white-sugar": {
     key: "white-sugar",
     original: { name: "White sugar", health: 2, taste: 10, why: "Pure sweetness, pure spike." },
-    balanced: { name: "Date paste or coconut sugar", health: 6, taste: 9, ingredientId: "dates", why: "Real sweetness with a little fibre and minerals." },
+    balanced: { name: "Date paste or coconut sugar", health: 6, taste: 9, ingredientId: "dates-medjool", why: "Real sweetness with a little fibre and minerals." },
     best: { name: "Monk fruit or stevia", health: 9, taste: 6, ingredientId: "monk-fruit-sweetener", why: "Zero glucose impact; slight aftertaste." },
   },
   "brown-sugar": {
@@ -59,7 +59,7 @@ export const TIERED_SWAPS: Record<string, TieredSwap> = {
   honey: {
     key: "honey",
     original: { name: "Honey", health: 5, taste: 10, why: "Lovely, but still concentrated sugar." },
-    balanced: { name: "Blended dates", health: 7, taste: 8, ingredientId: "dates", why: "Fibre travels with the sugar." },
+    balanced: { name: "Blended dates", health: 7, taste: 8, ingredientId: "dates-medjool", why: "Fibre travels with the sugar." },
     best: { name: "Monk fruit syrup", health: 9, taste: 6, ingredientId: "monk-fruit-sweetener", why: "Sweetness without the load." },
   },
   "potato-boiled": {
@@ -77,14 +77,14 @@ export const TIERED_SWAPS: Record<string, TieredSwap> = {
   "potato-chips": {
     key: "potato-chips",
     original: { name: "Potato chips", health: 2, taste: 10, why: "Salt and crunch, nothing else." },
-    balanced: { name: "Lightly salted popcorn", health: 6, taste: 8, ingredientId: "popcorn", why: "Whole grain, much lighter." },
+    balanced: { name: "Lightly salted popcorn", health: 6, taste: 8, ingredientId: "popcorn-air-popped", why: "Whole grain, much lighter." },
     best: { name: "Roasted edamame", health: 9, taste: 5, ingredientId: "edamame", why: "18 g protein per bowl with the same squeak." },
   },
   "ice-cream": {
     key: "ice-cream",
     original: { name: "Ice cream", health: 2, taste: 10, why: "Sugar and cream in one spoon." },
-    balanced: { name: "Greek yogurt with berries, frozen", health: 7, taste: 8, ingredientId: "greek-yogurt", why: "Creamy and cold with real protein." },
-    best: { name: "Protein berry nice-cream", health: 9, taste: 6, ingredientId: "greek-yogurt", why: "20 g protein, no spike." },
+    balanced: { name: "Greek yogurt with berries, frozen", health: 7, taste: 8, ingredientId: "greek-yogurt-0pct", why: "Creamy and cold with real protein." },
+    best: { name: "Protein berry nice-cream", health: 9, taste: 6, ingredientId: "greek-yogurt-0pct", why: "20 g protein, no spike." },
   },
   "orange-juice": {
     key: "orange-juice",
@@ -101,8 +101,8 @@ export const TIERED_SWAPS: Record<string, TieredSwap> = {
   granola: {
     key: "granola",
     original: { name: "Granola", health: 3, taste: 10, why: "Usually dessert wearing a breakfast label." },
-    balanced: { name: "Oats with nuts and seeds", health: 7, taste: 8, ingredientId: "oats-rolled", why: "Same crunch with far less sugar." },
-    best: { name: "Greek yogurt with nuts and berries", health: 9, taste: 6, ingredientId: "greek-yogurt", why: "Protein-led breakfast, flat curve." },
+    balanced: { name: "Oats with nuts and seeds", health: 7, taste: 8, ingredientId: "oats-uncooked", why: "Same crunch with far less sugar." },
+    best: { name: "Greek yogurt with nuts and berries", health: 9, taste: 6, ingredientId: "greek-yogurt-0pct", why: "Protein-led breakfast, flat curve." },
   },
   donut: {
     key: "donut",
