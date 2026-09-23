@@ -237,18 +237,40 @@ export function phaseForDate(periodDays: string[], date: Date): PhaseInfo | null
   const past = starts.map(toDate).filter((s) => s.getTime() <= target.getTime());
   if (past.length === 0) return null;
   const last = past[past.length - 1]!;
-  const length = averageCycleLength(periodDays);
-  let cycleDay = daysBetween(last, target) + 1;
-  if (cycleDay > length + 14) return null; // too stale to trust
-  if (cycleDay > length) cycleDay = ((cycleDay - 1) % length) + 1;
+  const cycle = learnedCycle(periodDays);
+  const length = cycle.length;
+  const cycleDay = daysBetween(last, target) + 1;
+
+  // Well past the expected period: stay in an extended luteal phase rather than guessing.
+  if (cycleDay > length + 2) {
+    return {
+      id: "luteal",
+      cycleDay,
+      extended: true,
+      overdueDays: cycleDay - length,
+      confidence: cycle.confidence,
+      cycleLength: length,
+      label: "Extended luteal",
+      headline: "A longer stretch than usual — steady blood sugar is the kindest thing you can do right now.",
+      foods: PHASE_CONTENT.luteal.foods,
+    };
+  }
 
   const ovulation = Math.max(12, length - 14);
   let id: PhaseId = "luteal";
-  if (cycleDay <= 5) id = "menstrual";
+  if (cycleDay <= Math.max(3, cycle.periodLength)) id = "menstrual";
   else if (cycleDay < ovulation) id = "follicular";
   else if (cycleDay <= ovulation + 2) id = "ovulatory";
 
-  return { id, cycleDay, ...PHASE_CONTENT[id] };
+  return {
+    id,
+    cycleDay,
+    extended: false,
+    overdueDays: 0,
+    confidence: cycle.confidence,
+    cycleLength: length,
+    ...PHASE_CONTENT[id],
+  };
 }
 
 export const MOODS = ["Great", "Okay", "Low", "Tired", "Anxious", "Irritable", "Foggy"] as const;
